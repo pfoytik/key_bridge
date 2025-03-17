@@ -1,8 +1,15 @@
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
 import binascii
 
+### read args from command line
+import argparse
+pk_path = argparse.ArgumentParser()
+pk_path.add_argument("private_key_path", help="Path to the private key file")
+args = pk_path.parse_args()
+private_key_path = args.private_key_path
+
 # Load the private key from the PEM file
-with open("private_key.pem", "rb") as f:
+with open(private_key_path, "rb") as f:
     private_key = load_pem_private_key(f.read(), password=None)
 
 # Ensure the private key is of the ECC type
