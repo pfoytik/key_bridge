@@ -51,7 +51,7 @@ encoded_key = base58.b58encode(ecc_public_bytes).decode()
 ecc_private_pem = ecc_private_key.private_bytes(Encoding.PEM, serialization.PrivateFormat.TraditionalOpenSSL, serialization.NoEncryption())
 
 # Write the ECC private key to a file
-with open("certs/ecc_private_key.pem", "wb") as f:
+with open("certs/Issuer_ecc_private_key.pem", "wb") as f:
     f.write(ecc_private_pem)
 
 # Construct the did:key identifier
@@ -66,5 +66,30 @@ signature = ecc_private_key.sign(message, ec.ECDSA(hashes.SHA256()))
 
 # Convert signature to hex
 print(f"Signature: {signature.hex()}")
+
+## Generate a new public private key pair for the holder
+# Generate a new ECC private key (Ed25519)
+holder_ecc_private_key = ec.generate_private_key(ec.SECP256K1(), default_backend())
+
+# Get the ECC public key
+holder_ecc_public_key = holder_ecc_private_key.public_key()
+holder_ecc_public_bytes = holder_ecc_public_key.public_bytes(Encoding.X962, PublicFormat.CompressedPoint)
+
+# Encode the ECC public key in Base58 for did:key format
+holder_encoded_key = base58.b58encode(holder_ecc_public_bytes).decode()
+
+# Construct the did:key identifier
+holder_did_key = f"did:key:z{holder_encoded_key}"
+print(f"Holder did:key: {holder_did_key}")
+
+# Export the private key in PEM format
+holder_ecc_private_pem = holder_ecc_private_key.private_bytes(Encoding.PEM, serialization.PrivateFormat.TraditionalOpenSSL, serialization.NoEncryption())
+
+# Write the ECC private key to a file
+with open("certs/Holder_ecc_private_key.pem", "wb") as f:
+    f.write(holder_ecc_private_pem)
+
+
+
 
 
