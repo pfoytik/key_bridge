@@ -9,11 +9,29 @@ from ecdsa.ellipticcurve import Point
 from ecdsa.util import sigdecode_der
 
 # Load the presentation JSON
-with open("signed_credential.json", "r") as f:
+with open("certs/presentation.json", "r") as f:
     presentation = json.load(f)
 
 ### 1️⃣ Verify the Verifiable Credential Signature (Issuer) ###
-credential = presentation#["verifiableCredential"][0]
+credential = presentation["verifiableCredential"][0]
+pres_sig = presentation["proof"]["signatureValue"]
+
+### get the did of the holder
+holder_public = presentation["holder"]
+
+# Extract holder DID and decode public key
+holder_did = holder_public  # Example: "did:key:zfLFs5X..."
+print(holder_did)
+holder_encoded_key = holder_did[9:]
+print(holder_encoded_key)
+holder_compressed_key = base58.b58decode(holder_encoded_key)
+
+### verify the signature with the holder's public key
+try:
+    holder_vk = VerifyingKey.from_string(holder_compressed_key, curve=SECP256k1)
+    print("✅ Successfully loaded VerifyingKey from uncompressed public key")
+except Exception as e:
+    print("❌ Failed to convert key:", e)
 
 # Extract issuer DID and decode public key
 issuer_did = credential["issuer"]  # Example: "did:key:zfLFs5X..."
